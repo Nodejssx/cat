@@ -1,18 +1,28 @@
+#!/bin/bash
+
 Crontab_file="/usr/bin/crontab"
 Green_font_prefix="\033[32m"
 Red_font_prefix="\033[31m"
 Green_background_prefix="\033[42;37m"
 Red_background_prefix="\033[41;37m"
 Font_color_suffix="\033[0m"
-Info="[${Green_font_prefix}信息${Font_color_suffix}]"
-Error="[${Red_font_prefix}错误${Font_color_suffix}]"
-Tip="[${Green_font_prefix}注意${Font_color_suffix}]"
+Info="[${Green_font_prefix}INFO${Font_color_suffix}]"
+Error="[${Red_font_prefix}ERROR${Font_color_suffix}]"
+Tip="[${Green_font_prefix}NOTE${Font_color_suffix}]"
+
+# Eğer $1 parametresi verilmediyse, kullanıcıdan giriş iste
 if [ -z "$1" ]; then
     read -e -p "Lütfen bir seçenek girin:" num
+else
+    num="$1"
 fi
-#ROOT kullanıcısı olup olmadığını kontrol eder, ROOT değilse uyarı verir ve işlemi durdurur
+
+# ROOT kullanıcısı olup olmadığını kontrol eder
 check_root() {
-    [[ $EUID != 0 ]] && echo -e "${Error} Şu an ROOT hesabında değilsiniz (veya ROOT yetkiniz yok), işlem devam edemez. Lütfen ROOT hesabına geçiş yapın veya ${Green_background_prefix}sudo su${Font_color_suffix} komutuyla geçici ROOT yetkisi alın (komut girildikten sonra mevcut hesabın şifresi sorulabilir)." && exit 1
+    if [[ $EUID != 0 ]]; then
+        echo -e "${Error} ROOT kullanıcısı değilsiniz. ROOT olarak devam etmek için ${Green_background_prefix}sudo su${Font_color_suffix} komutunu kullanabilirsiniz."
+        exit 1
+    fi
 }
 
 # Ortamı kurar ve tam düğümü yükler
@@ -35,8 +45,8 @@ install_env_and_full_node() {
     sudo yarn install
     sudo yarn build
 
-    MAX_CPUS=$(nproc) # Maksimum işlemci sayısını alır
-    MAX_MEMORY=$(free -m | awk '/Mem:/ {print int($2*0.8)"M"}') # Maksimum bellek miktarını hesaplar
+    MAX_CPUS=$(nproc)
+    MAX_MEMORY=$(free -m | awk '/Mem:/ {print int($2*0.8)"M"}')
 
     cd ./packages/tracker/
     sudo chmod 777 docker/data
@@ -67,7 +77,7 @@ install_env_and_full_node() {
     }' > ~/cat-token-box/packages/cli/config.json
 }
 
-# Yeni bir cüzdan oluşturur
+# Cüzdan oluşturur
 create_wallet() {
   echo -e "\n"
   cd ~/cat-token-box/packages/cli
@@ -77,29 +87,21 @@ create_wallet() {
   echo -e "Lütfen yukarıda oluşturulan cüzdan adresini ve kurtarma cümlesini saklayın"
 }
 
-# CAT token basma işlemini başlatır
+# CAT token basma işlemi
 start_mint_cat() {
-  # Token ID'sini girin
   read -p "Lütfen mint yapmak istediğiniz tokenId'yi girin: " tokenId
-
-  # Gas (maxFeeRate) miktarını ayarlayın
   read -p "Lütfen mint için gas ayarlayın: " newMaxFeeRate
   sed -i "s/\"maxFeeRate\": [0-9]*/\"maxFeeRate\": $newMaxFeeRate/" ~/cat-token-box/packages/cli/config.json
-
-  # Mint miktarını girin
   read -p "Lütfen mint yapılacak miktarı girin: " amount
 
   cd ~/cat-token-box/packages/cli
-
-  # Mint komutunu tokenId ve miktarla güncelle
   command="sudo yarn cli mint -i $tokenId $amount"
 
-  # Mint döngüsünü başlat
   while true; do
       $command
 
       if [ $? -ne 0 ]; then
-          echo "Komut çalıştırılamadı, döngüden çıkılıyor"
+          echo "Komut çalıştırılamadı, çıkılıyor."
           exit 1
       fi
 
@@ -120,7 +122,7 @@ check_wallet_balance() {
 
 # Token gönderir
 send_token() {
-  read -p "Lütfen tokenId'yi (token adı değil) girin: " tokenId
+  read -p "Lütfen tokenId'yi girin: " tokenId
   read -p "Lütfen alıcının adresini girin: " receiver
   read -p "Lütfen gönderilecek miktarı girin: " amount
   cd ~/cat-token-box/packages/cli
@@ -128,20 +130,31 @@ send_token() {
   if [ $? -eq 0 ]; then
       echo -e "${Info} Transfer başarılı"
   else
-      echo -e "${Error} Transfer başarısız, bilgileri kontrol edip tekrar deneyin"
+      echo -e "${Error} Transfer başarısız. Lütfen tekrar deneyin."
   fi
 }
 
-
-# Menü açıklamaları
-echo && echo -e " ${Red_font_prefix}dusk_network tek tıklamayla kurulum betiği${Font_color_suffix} by \033[1;35moooooyoung\033[0m
-Bu betik tamamen ücretsizdir ve Twitter kullanıcısı ${Green_font_prefix}@ouyoung11 tarafından geliştirilmiştir${Font_color_suffix}, 
-takip etmeyi unutmayın, ücretli bir teklif alırsanız dolandırılmayın.
- ———————————————————————
- ${Green_font_prefix} 1. Ortamı ve tam düğümü kur ${Font_color_suffix}
- ${Green_font_prefix} 2. Cüzdan oluştur ${Font_color_suffix}
- ${Green_font_prefix} 3. Cüzdan bakiyesini kontrol et ${Font_color_suffix}
- ${Green_font_prefix} 4. CAT20 token basmaya başla ${Font_color_suffix}
- ${Green_font_prefix} 5. Düğüm senkronizasyon loglarını kontrol et ${Font_color_suffix}
- ${Green_font_prefix} 6. CAT20 token transfer et ${Font_color_suffix}
- ———————————————————————" && echo
+# Menü
+case "$num" in
+    1)
+        install_env_and_full_node
+        ;;
+    2)
+        create_wallet
+        ;;
+    3)
+        check_wallet_balance
+        ;;
+    4)
+        start_mint_cat
+        ;;
+    5)
+        check_node_log
+        ;;
+    6)
+        send_token
+        ;;
+    *)
+        echo -e "${Error} Geçersiz seçenek, lütfen doğru bir numara girin."
+        ;;
+esac
