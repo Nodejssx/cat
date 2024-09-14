@@ -7,7 +7,9 @@ Font_color_suffix="\033[0m"
 Info="[${Green_font_prefix}信息${Font_color_suffix}]"
 Error="[${Red_font_prefix}错误${Font_color_suffix}]"
 Tip="[${Green_font_prefix}注意${Font_color_suffix}]"
-
+if [ -z "$1" ]; then
+    read -e -p "Lütfen bir seçenek girin:" num
+fi
 #ROOT kullanıcısı olup olmadığını kontrol eder, ROOT değilse uyarı verir ve işlemi durdurur
 check_root() {
     [[ $EUID != 0 ]] && echo -e "${Error} Şu an ROOT hesabında değilsiniz (veya ROOT yetkiniz yok), işlem devam edemez. Lütfen ROOT hesabına geçiş yapın veya ${Green_background_prefix}sudo su${Font_color_suffix} komutuyla geçici ROOT yetkisi alın (komut girildikten sonra mevcut hesabın şifresi sorulabilir)." && exit 1
