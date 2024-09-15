@@ -81,10 +81,14 @@ install_env_and_full_node() {
 create_wallet() {
   echo -e "\n"
   cd ~/cat-token-box/packages/cli
-  sudo yarn cli wallet create
-  echo -e "\n"
-  sudo yarn cli wallet address
-  echo -e "Lütfen yukarıda oluşturulan cüzdan adresini ve kurtarma cümlesini saklayın"
+  WALLET_OUTPUT=$(sudo yarn cli wallet create)
+  ADDRESS_OUTPUT=$(sudo yarn cli wallet address)
+  
+  # Cüzdan ve adres bilgilerini data.txt'ye kaydet
+  echo "$WALLET_OUTPUT" >> ~/data.txt
+  echo "$ADDRESS_OUTPUT" >> ~/data.txt
+  
+  echo -e "\nLütfen yukarıda oluşturulan cüzdan adresini ve kurtarma cümlesini saklayın"
 }
 
 # CAT token basma işlemi
