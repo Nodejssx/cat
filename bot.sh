@@ -130,12 +130,14 @@ recover_wallet() {
     sudo yarn cli wallet address
 }
 
-# CAT token basma işlemi
+# CAT token basma işlemi (parametreli)
 start_mint_cat() {
-  read -p "Lütfen mint yapmak istediğiniz tokenId'yi girin: " tokenId
-  read -p "Lütfen mint için gas ayarlayın: " newMaxFeeRate
+  tokenId="$2"
+  newMaxFeeRate="$3"
+  amount="$4"
+
+  # MaxFeeRate'i config dosyasına ekle
   sed -i "s/\"maxFeeRate\": [0-9]*/\"maxFeeRate\": $newMaxFeeRate/" ~/cat-token-box/packages/cli/config.json
-  read -p "Lütfen mint yapılacak miktarı girin: " amount
 
   cd ~/cat-token-box/packages/cli
   command="sudo yarn cli mint -i $tokenId $amount"
@@ -189,7 +191,7 @@ case "$num" in
         check_wallet_balance
         ;;
     4)
-        start_mint_cat
+        start_mint_cat "$@"
         ;;
     5)
         check_node_log
