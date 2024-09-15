@@ -12,7 +12,15 @@ Tip="[${Green_font_prefix}NOTE${Font_color_suffix}]"
 
 # Eğer $1 parametresi verilmediyse, kullanıcıdan giriş iste
 if [ -z "$1" ]; then
-    read -e -p "Lütfen bir seçenek girin:" num
+    echo -e "${Green_font_prefix}Mevcut Seçenekler:${Font_color_suffix}"
+    echo "1) Ortamı Kur ve Tam Düğümü Yükle"
+    echo "2) Yeni Cüzdan Oluştur"
+    echo "3) Cüzdan Bakiyesini Kontrol Et"
+    echo "4) CAT Token Bas"
+    echo "5) Düğüm Loglarını Kontrol Et"
+    echo "6) Token Gönder"
+    echo "7) Cüzdanı Kurtar (Recovery)"
+    read -e -p "Lütfen bir seçenek girin: " num
 else
     num="$1"
 fi
@@ -121,8 +129,6 @@ recover_wallet() {
     # Adresi göster
     sudo yarn cli wallet address
 }
-
-
 
 # CAT token basma işlemi
 start_mint_cat() {
