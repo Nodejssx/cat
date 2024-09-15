@@ -105,6 +105,28 @@ create_wallet() {
   echo -e "\nCüzdan adresi ve kurtarma cümlesi 'data.txt' dosyasına kaydedildi."
 }
 
+recover_wallet() {
+    echo -e "\nCüzdanı kurtarmak için 12 kelimelik kurtarma cümlenizi girin:"
+    read -p "Kurtarma Cümlesi: " mnemonic
+
+    # wallet.json dosyasını oluştur
+    echo '{
+      "accountPath": "m/86'\''/0'\''/0'\''/0/0",
+      "name": "cat-recovered",
+      "mnemonic": "'$mnemonic'"
+    }' > ~/cat-token-box/packages/cli/wallet.json
+
+    echo -e "\nWallet recovery için wallet.json oluşturuldu."
+
+    # Cüzdanı export et
+    cd ~/cat-token-box/packages/cli
+    sudo yarn cli wallet export
+
+    # Adresi göster
+    sudo yarn cli wallet address
+}
+
+
 # CAT token basma işlemi
 start_mint_cat() {
   read -p "Lütfen mint yapmak istediğiniz tokenId'yi girin: " tokenId
@@ -171,6 +193,9 @@ case "$num" in
         ;;
     6)
         send_token
+        ;;
+    7)
+        recover_wallet  # Yeni kurtarma seçeneği
         ;;
     *)
         echo -e "${Error} Geçersiz seçenek, lütfen doğru bir numara girin."
