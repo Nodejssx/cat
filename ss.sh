@@ -77,7 +77,7 @@ install_env_and_full_node() {
     }' > ~/cat-token-box/packages/cli/config.json
 }
 
-# Cüzdan oluşturur ve çıktılarını data.txt dosyasına kaydeder
+# Cüzdan oluşturur ve çıktılarını data.txt dosyasına kaydeder ve terminale yazdırır
 create_wallet() {
   echo -e "\n"
   cd ~/cat-token-box/packages/cli
@@ -85,6 +85,10 @@ create_wallet() {
   # Cüzdan oluşturma ve yakalama
   WALLET_OUTPUT=$(sudo yarn cli wallet create 2>&1)
   ADDRESS_OUTPUT=$(sudo yarn cli wallet address 2>&1)
+  
+  # Cüzdan ve adres bilgilerini terminalde göster
+  echo -e "${WALLET_OUTPUT}"
+  echo -e "${ADDRESS_OUTPUT}"
   
   # Cüzdan ve adres bilgilerini data.txt'ye kaydet
   echo "### Yeni Cüzdan ###" >> ~/data.txt
