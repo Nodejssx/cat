@@ -81,8 +81,8 @@ install_env_and_full_node() {
 create_wallet() {
   echo -e "\n"
   cd ~/cat-token-box/packages/cli
-  WALLET_OUTPUT=$(sudo yarn cli wallet create)
-  ADDRESS_OUTPUT=$(sudo yarn cli wallet address)
+  WALLET_OUTPUT=$(yarn cli wallet create)
+  ADDRESS_OUTPUT=$(yarn cli wallet address)
   
   # Cüzdan ve adres bilgilerini data.txt'ye kaydet
   echo "$WALLET_OUTPUT" >> ~/data.txt
