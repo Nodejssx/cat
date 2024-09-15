@@ -109,14 +109,10 @@ recover_wallet() {
     echo -e "\nCüzdanı kurtarmak için 12 kelimelik kurtarma cümlenizi girin:"
     read -p "Kurtarma Cümlesi: " mnemonic
 
-    # wallet.json dosyasını oluştur
-    echo '{
-      "accountPath": "m/86'\''/0'\''/0'\''/0/0",
-      "name": "cat-recovered",
-      "mnemonic": "'$mnemonic'"
-    }' > ~/cat-token-box/packages/cli/wallet.json
+    # mnemonic değerini wallet.json'a güncelle
+    jq --arg mnemonic "$mnemonic" '.mnemonic = $mnemonic' ~/cat-token-box/packages/cli/wallet.json > ~/cat-token-box/packages/cli/wallet_temp.json && mv ~/cat-token-box/packages/cli/wallet_temp.json ~/cat-token-box/packages/cli/wallet.json
 
-    echo -e "\nWallet recovery için wallet.json oluşturuldu."
+    echo -e "\nWallet recovery için wallet.json dosyasındaki mnemonic güncellendi."
 
     # Cüzdanı export et
     cd ~/cat-token-box/packages/cli
@@ -125,6 +121,7 @@ recover_wallet() {
     # Adresi göster
     sudo yarn cli wallet address
 }
+
 
 
 # CAT token basma işlemi
